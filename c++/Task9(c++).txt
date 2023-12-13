@@ -1,0 +1,56 @@
+// 9.Дано число n. Найти n-ое простое число.
+
+#include <iostream>
+
+using namespace std;
+
+bool isPrime(int num) {
+    if (num <= 1) return false;
+    for (int i = 2; i * i <= num; ++i) {
+        if (num % i == 0) return false;
+    }
+    return true;
+}
+
+int findNthPrime(int n) {
+    if (n == 1) return 2; 
+
+    int count = 1; 
+    int num = 3; 
+
+    while (count < n) {
+        if (isPrime(num)) {
+            count++;
+        }
+        if (count == n) {
+            return num;
+        }
+        num += 2; 
+    }
+
+    return -1; 
+}
+
+int main() {
+
+    setlocale(LC_ALL, "Russian");
+
+    int n;
+    cout << "Введите значение n: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "n не можеть быть отрицательным или равным нулю." << endl;
+    }
+    else {
+        int nthPrime = findNthPrime(n);
+        if (nthPrime != -1) {
+            cout << "n-ое простое число: " << nthPrime << endl;
+        }
+        else {
+            cout << "n-е простое число не найдено." << endl;
+        }
+    }
+
+    return 0;
+}

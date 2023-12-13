@@ -1,0 +1,405 @@
+// Графы.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+#include <fstream> 
+#include <string>
+
+using namespace std;
+
+void generateDotFile(const vector<vector<int>>& graph, const string& fileName) {
+	ofstream dotFile(fileName);
+	dotFile << "graph G {\n";
+	int n = graph.size();
+
+	// Добавляем атрибуты для вершин
+	dotFile << "node [shape=circle, width=0.15, label=\"\"];\n";
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = i + 1; j < n; ++j) {
+			if (graph[i][j] == 1) {
+				dotFile << i << " -- " << j << ";\n";
+			}
+		}
+	}
+	dotFile << "}\n";
+	dotFile.close();
+}
+
+void visualizeGraph(const string& dotFileName, const string& outputFileName) {
+	string command = "dot -Tpng " + dotFileName + " -o " + outputFileName;
+	int result = system(command.c_str());
+
+	if (result == 0) {
+		cout << "Визуализация успешно завершена. Результат сохранен в " << outputFileName << endl;
+	}
+	else {
+		cout << "Ошибка при визуализации графа." << endl;
+	}
+}
+
+void isConnectedGraph(const vector<vector<int>>& graph, vector<bool>& visited, int vertex) {
+	visited[vertex] = true;
+	for (int neighbor = 0; neighbor < graph.size(); ++neighbor) {
+		if (graph[vertex][neighbor] == 1 && !visited[neighbor]) {
+			isConnectedGraph(graph, visited, neighbor);
+		}
+	}
+}
+
+int countOutgoingEdges(const vector<vector<int>>& graph, int vertex) {
+	int n = graph.size();
+	int count = 0;
+	for (int i = 0; i < n; i++) {
+		if (graph[vertex][i] == 1) {
+			count++;
+		}
+	}
+	return count;
+}
+
+bool isCompleteGraph(const vector<vector<int>>& graph) {
+	int n = graph.size();
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (i != j && graph[i][j] != 1) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool hasCompleteSubgraph(const vector<vector<int>>& graph, int k) {
+	int n = graph.size();
+	if (k > n) {
+		return false;  // Количество вершин в подграфе больше, чем в исходном графе
+	}
+
+	vector<int> selectedVertices;
+	vector<int> currentCombination(k, 0);
+
+	for (int i = 0; i < k; i++) {
+		selectedVertices.push_back(i);
+	}
+
+	while (currentCombination[0] <= n - k) {
+		// Проверяем, что текущая комбинация вершин является полным подграфом
+		bool isComplete = true;
+		for (int i = 0; i < k; i++) {
+			for (int j = i + 1; j < k; j++) {
+				if (graph[selectedVertices[i]][selectedVertices[j]] != 1) {
+					isComplete = false;
+					break;
+				}
+			}
+		}
+
+		if (isComplete) {
+			return true;
+		}
+
+		// Генерируем следующую комбинацию
+		int t = k - 1;
+		while (t >= 0 && currentCombination[t] == n - k + t) {
+			t--;
+		}
+
+		if (t < 0) {
+			break;  // Все возможные комбинации были проверены
+		}
+
+		currentCombination[t]++;
+
+		for (int i = t + 1; i < k; i++) {
+			currentCombination[i] = currentCombination[i - 1] + 1;
+		}
+
+		for (int i = 0; i < k; i++) {
+			selectedVertices[i] = currentCombination[i];
+		}
+	}
+
+	return false;  // Подграф с K вершинами не найден
+}
+
+void dfsForMinimumSpanningTree(const vector<vector<int>>& graph, vector<bool>& visited, int vertex) {
+	visited[vertex] = true;
+	cout << vertex << " ";
+
+	for (int neighbor = 0; neighbor < graph.size(); ++neighbor) {
+		if (graph[vertex][neighbor] == 1 && !visited[neighbor]) {
+			// Ребро (vertex, neighbor) входит в остовное дерево
+			dfsForMinimumSpanningTree(graph, visited, neighbor);
+		}
+	}
+}
+
+void findMinimumSpanningTree(const vector<vector<int>>& graph) {
+	int n = graph.size();
+	vector<bool> visited(n, false);
+
+	for (int i = 0; i < n; i++) {
+		if (!visited[i]) {
+			cout << "Остовное дерево, начиная с вершины " << i << ":\n";
+			dfsForMinimumSpanningTree(graph, visited, i);
+			cout << endl;
+		}
+	}
+}
+
+int countConnectedComponents(const vector<vector<int>>& graph) {
+	int n = graph.size();
+	vector<bool> visited(n, false);
+	int components = 0;
+
+	for (int i = 0; i < n; i++) {
+		if (!visited[i]) {
+			isConnectedGraph(graph, visited, i);
+			components++;
+		}
+	}
+
+	return components;
+}
+
+int main() {
+	setlocale(LC_ALL, "Russian");
+
+	int n;
+	int button;
+	cout << "Введите размерность матрицы n (2 <= n <= 10): ";
+	cin >> n;
+
+	if (n < 2 || n > 10) {
+		cout << "Неверный размер массива. Укажите n от 2 до 10." << endl;
+		return 1;
+	}
+
+	vector<vector<int>> matrix(n, vector<int>(n, 0));
+
+	cout << "Введите элементы матрицы:\n";
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> matrix[i][j];
+		}
+	}
+	cout << "Нажмите 1 для ответа на вопрос: Это направленный или ненаправленный граф?\n";
+	cout << "Нажмите 2 для ответа на вопрос: Это связный или несвязный граф?\n";
+	cout << "Нажмите 3 для ответа на вопрос: Это весовый граф или нет?\n";
+	cout << "Нажмите 4 для ответа на вопрос: Это полный граф или нет?\n";
+	cout << "Нажмите 5 для ответа на вопрос: Этот граф дерево, лес или ни то ни другое?\n";
+	cout << "Нажмите 6 для ответа на вопрос: Этот граф уникурсальный или нет?\n";
+	cout << "Нажмите 7 для ответа на вопрос: Существует ли полный подграф с К вершинами?\n";
+	cout << "Нажмите 8 для ответа на вопрос: Определять остовное дерево в графе.\n";
+	cout << "Нажмите 9 для ответа на вопрос: Количество компонентов связности графа.\n";
+	cout << "Нажмите 10 для ответа на вопрос: Визуализация графа.\n";
+	cout << "\n";
+	cout << "Введите значение: ";
+	cin >> button;
+	cout << "\n";
+
+	while (true) {
+
+		if (button == 1) {
+			bool isDirected = false;
+
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (matrix[i][j] != matrix[j][i]) {
+						isDirected = true;
+						break;
+					}
+				}
+				if (isDirected) break;
+			}
+
+			if (isDirected) {
+				cout << "Граф является направленным." << endl;
+			}
+			else {
+				cout << "Граф является ненаправленным." << endl;
+			}
+		}
+
+		else if (button == 2) {
+
+			vector<bool> visited(n, false);
+			isConnectedGraph(matrix, visited, 0);
+
+			bool isConnected = true;
+			for (bool visit : visited) {
+				if (!visit) {
+					isConnected = false;
+					break;
+				}
+			}
+
+			if (isConnected) {
+				cout << "Граф связный." << endl;
+			}
+			else {
+				cout << "Граф несвязный." << endl;
+			}
+		}
+
+		else if (button == 3) {
+
+			bool isWeighted = false;
+
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (matrix[i][j] != 0) {
+						isWeighted = true;
+						break;
+					}
+				}
+				if (isWeighted) break;
+			}
+
+			if (isWeighted) {
+				cout << "Граф является взвешенным." << endl;
+			}
+			else {
+				cout << "Граф не является взвешенным." << endl;
+			}
+		}
+
+		else if (button == 4) {
+
+			if (isCompleteGraph(matrix)) {
+				cout << "Граф является полным." << endl;
+			}
+			else {
+				cout << "Граф не является полным." << endl;
+			}
+		}
+
+		else if (button == 5) {
+
+			vector<bool> visited(n, false);
+
+			isConnectedGraph(matrix, visited, 0);
+
+			bool isConnected = true;
+			for (bool visit : visited) {
+				if (!visit) {
+					isConnected = false;
+					break;
+				}
+			}
+
+			bool isTree = isConnected;
+
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < n; j++) {
+					if (matrix[i][j] == 1) {
+						if (visited[i] && visited[j]) {
+							isTree = false;
+						}
+					}
+				}
+			}
+
+			bool isForest = true;
+
+			for (int i = 0; i < n; i++) {
+				if (!visited[i]) {
+					isForest = false;
+					break;
+				}
+			}
+
+			if (isTree) {
+				cout << "Граф является деревом." << endl;
+			}
+			else if (isForest) {
+				cout << "Граф является лесом." << endl;
+			}
+			else {
+				cout << "Граф не является ни деревом, ни лесом." << endl;
+			}
+		}
+
+		else if (button == 6) {
+			int oddCount = 0;
+			int evenCount = 0;
+
+			for (int i = 0; i < n; i++) {
+				int edgesFromVertex = countOutgoingEdges(matrix, i);
+				if (edgesFromVertex % 2 == 0) {
+					evenCount++;
+				}
+				else {
+					oddCount++;
+				}
+			}
+
+			if (evenCount == n || oddCount >= 2) {
+				cout << "Граф уникурсальный." << endl;
+			}
+			else {
+				cout << "Граф не уникурсальный." << endl;
+			}
+		}
+
+		else if (button == 7) {
+			int k;
+			cout << "Введите количество вершин K: ";
+			cin >> k;
+
+			if (hasCompleteSubgraph(matrix, k)) {
+				cout << "Существует полный подграф с " << k << " вершинами." << endl;
+			}
+			else {
+				cout << "Нет полного подграфа с " << k << " вершинами." << endl;
+			}
+		}
+
+		else if (button == 8) {
+			findMinimumSpanningTree(matrix);
+		}
+
+		else if (button == 9) {
+			int components = countConnectedComponents(matrix);
+			cout << "Количество компонентов связности: " << components << endl;
+		}
+
+		else if (button == 10) {
+			// Генерация DOT файла
+			generateDotFile(matrix, "graph.dot");
+
+			// Визуализация графа
+			visualizeGraph("graph.dot", "graph.png");
+		}
+
+		else if (button == 0) {
+			break;
+		}
+
+		else {
+			cout << "Введите правильное значение." << endl;
+		}
+
+		cout << "\n";
+		cout << "Нажмите 0 для завершения программы.\n";
+		cout << "Нажмите 1 для ответа на вопрос: Это направленный или ненаправленный граф?\n";
+		cout << "Нажмите 2 для ответа на вопрос: Это связный или несвязный граф?\n";
+		cout << "Нажмите 3 для ответа на вопрос: Это весовый граф или нет?\n";
+		cout << "Нажмите 4 для ответа на вопрос: Это полный граф или нет?\n";
+		cout << "Нажмите 5 для ответа на вопрос: Этот граф дерево, лес или ни то ни другое?\n";
+		cout << "Нажмите 6 для ответа на вопрос: Этот граф уникурсальный или нет?\n";
+		cout << "Нажмите 7 для ответа на вопрос: Существует ли полный подграф с К вершинами?\n";
+		cout << "Нажмите 8 для ответа на вопрос: Определять остовное дерево в графе.\n";
+		cout << "Нажмите 9 для ответа на вопрос: Количество компонентов связности графа.\n";
+		cout << "Нажмите 10 для ответа на вопрос: Визуализация графа.\n";
+		cout << "\n";
+		cout << "Введите значение: ";
+		cin >> button;
+		cout << "\n";
+	}
+}

@@ -1,0 +1,54 @@
+// 3.Заданы 3 вещественных числа a, b, c (a>0, b>0, c>0).Написать программу, которая выдает существует ли треугольник со сторонами a, b, c. Если существует, то найти площадь, периметр, медианы, высоты и биссектрисы этого треугольника.
+
+#include <iostream>
+
+using namespace std;
+#include <iostream>
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
+    double a, b, c;
+    cout << "Введите числа a, b, c: " << endl;
+    cin >> a;
+    cin >> b;
+    cin >> c;
+
+    if ((a + b) <= c || (a + c) <= b || (b + c) <= a) {
+        cout << "Треугольник не существует" << endl;
+    }
+    else {
+        cout << "Треугольник существует" << endl;
+      
+        double perimeter = a + b + c;
+        cout << "Периметр треугольника: " << perimeter << endl;
+
+        double p = 0.5 * (a + b + c);
+        double area = sqrt(p * (p - a) * (p - b) * (p - c));
+        cout << "Площадь треугольника: " << area << endl;
+
+        double medianA = 0.5 * sqrt(2 * b * b + 2 * c * c - a * a);
+        double medianB = 0.5 * sqrt(2 * a * a + 2 * c * c - b * b);
+        double medianC = 0.5 * sqrt(2 * a * a + 2 * b * b - c * c);
+        cout << "Медиана, проведенная из вершины A: " << medianA << endl;
+        cout << "Медиана, проведенная из вершины B: " << medianB << endl;
+        cout << "Медиана, проведенная из вершины C: " << medianC << endl;
+
+        double heightA = 2 * area / a;
+        double heightB = 2 * area / b;
+        double heightC = 2 * area / c;
+        cout << "Высота, проведенная из вершины A: " << heightA << endl;
+        cout << "Высота, проведенная из вершины B: " << heightB << endl;
+        cout << "Высота, проведенная из вершины C: " << heightC << endl;
+
+        double bisectorA = (2 * b * c) / (b + c);
+        double bisectorB = (2 * a * c) / (a + c);
+        double bisectorC = (2 * a * b) / (a + b);
+        cout << "Биссектриса, проведенная из вершины A: " << bisectorA << endl;
+        cout << "Биссектриса, проведенная из вершины B: " << bisectorB << endl;
+        cout << "Биссектриса, проведенная из вершины C: " << bisectorC << endl;
+    }
+
+    return 0;
+}
