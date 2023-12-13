@@ -1,0 +1,39 @@
+import math
+
+print("Введите числа a, b, c:")
+a = float(input())
+b = float(input())
+c = float(input())
+
+if (a + b) <= c or (a + c) <= b or (b + c) <= a:
+    print("Треугольник не существует")
+else:
+    print("Треугольник существует")
+  
+    perimeter = a + b + c
+    print("Периметр треугольника:", perimeter)
+
+    p = 0.5 * (a + b + c)
+    area = math.sqrt(p * (p - a) * (p - b) * (p - c))
+    print("Площадь треугольника:", area)
+
+    medianA = 0.5 * math.sqrt(2 * b * b + 2 * c * c - a * a)
+    medianB = 0.5 * math.sqrt(2 * a * a + 2 * c * c - b * b)
+    medianC = 0.5 * math.sqrt(2 * a * a + 2 * b * b - c * c)
+    print("Медиана, проведенная из вершины A:", medianA)
+    print("Медиана, проведенная из вершины B:", medianB)
+    print("Медиана, проведенная из вершины C:", medianC)
+
+    heightA = 2 * area / a
+    heightB = 2 * area / b
+    heightC = 2 * area / c
+    print("Высота, проведенная из вершины A:", heightA)
+    print("Высота, проведенная из вершины B:", heightB)
+    print("Высота, проведенная из вершины C:", heightC)
+
+    bisectorA = (2 * b * c) / (b + c)
+    bisectorB = (2 * a * c) / (a + c)
+    bisectorC = (2 * a * b) / (a + b)
+    print("Биссектриса, проведенная из вершины A:", bisectorA)
+    print("Биссектриса, проведенная из вершины B:", bisectorB)
+    print("Биссектриса, проведенная из вершины C:", bisectorC)

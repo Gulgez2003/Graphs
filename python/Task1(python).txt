@@ -1,0 +1,19 @@
+n = int(input("Введите размер массива: "))
+arr = []
+
+print("Введите элементы массива:")
+for i in range(n):
+    arr.append(int(input()))
+
+evenCount = 0
+oddCount = 0
+
+for i in range(n):
+    if arr[i] != 0:
+        if arr[i] % 2 == 0:
+            evenCount += 1
+        else:
+            oddCount += 1
+
+print("Количество четных элементов:", evenCount)
+print("Количество нечетных элементов:", oddCount)

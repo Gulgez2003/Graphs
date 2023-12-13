@@ -1,0 +1,30 @@
+def count_of_digits(num):
+    digit = 0
+    count = 0
+    if num != 0:
+        while num > 0:
+            digit = num % 10
+            count += 1
+            num //= 10
+    else:
+        count = 1
+
+    return count
+
+print("Введите размер массива:")
+n = int(input())
+A = []
+
+print("Введите элементы массива:")
+for i in range(n):
+    A.append(int(input()))
+
+B = []
+
+for i in range(n):
+    B.append(count_of_digits(A[i]))
+
+print("Массив B после замены чисел количеством их цифр:")
+for i in range(n):
+    print(B[i], end=" ")
+print()

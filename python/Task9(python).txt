@@ -1,0 +1,35 @@
+def is_prime(num):
+    if num <= 1:
+        return False
+    for i in range(2, int(num ** 0.5) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+def find_nth_prime(n):
+    if n == 1:
+        return 2
+
+    count = 1
+    num = 3
+
+    while count < n:
+        if is_prime(num):
+            count += 1
+        if count == n:
+            return num
+        num += 2
+
+    return -1
+
+print("Введите значение n:")
+n = int(input())
+
+if n <= 0:
+    print("n не может быть отрицательным или равным нулю.")
+else:
+    nth_prime = find_nth_prime(n)
+    if nth_prime != -1:
+        print("n-ое простое число:", nth_prime)
+    else:
+        print("n-е простое число не найдено.")

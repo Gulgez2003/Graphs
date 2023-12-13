@@ -1,0 +1,24 @@
+def sum_of_digits(num):
+    sum = 0
+    while num > 0:
+        sum += num % 10
+        num //= 10
+    return sum
+
+print("Введите размер массива:")
+n = int(input())
+A = []
+
+print("Введите элементы массива:")
+for i in range(n):
+    A.append(int(input()))
+
+B = []
+
+for i in range(n):
+    B.append(sum_of_digits(A[i]))
+
+print("Массив B после замены чисел суммами их цифр:")
+for i in range(n):
+    print(B[i], end=" ")
+print()

@@ -1,0 +1,18 @@
+n = int(input("Введите размер массива: "))
+arr = []
+
+print("Введите элементы массива:")
+for i in range(n):
+    arr.append(int(input()))
+
+k = int(input("Введите значение числа k: "))
+count = 0
+
+if k != 0:
+    for i in range(n):
+        if arr[i] != 0 and arr[i] % k == 0:
+            count += 1
+else:
+    print("На ноль делить нельзя")
+
+print("Количество элементов делящихся на k:", count)

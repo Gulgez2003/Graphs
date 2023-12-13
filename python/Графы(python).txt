@@ -1,0 +1,191 @@
+import os
+
+def generate_dot_file(graph, file_name):
+    with open(file_name, 'w') as dot_file:
+        dot_file.write("graph G {\n")
+        n = len(graph)
+
+        # Добавляем атрибуты для вершин
+        dot_file.write("node [shape=circle, width=0.15, label=\"\"];\n")
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                if graph[i][j] == 1:
+                    dot_file.write(f"{i} -- {j};\n")
+        dot_file.write("}\n")
+
+def visualize_graph(dot_file_name, output_file_name):
+    command = f"dot -Tpng {dot_file_name} -o {output_file_name}"
+    result = os.system(command)
+
+    if result == 0:
+        print(f"Визуализация успешно завершена. Результат сохранен в {output_file_name}")
+    else:
+        print("Ошибка при визуализации графа.")
+
+def is_connected_graph(graph, visited, vertex):
+    visited[vertex] = True
+    for neighbor in range(len(graph)):
+        if graph[vertex][neighbor] == 1 and not visited[neighbor]:
+            is_connected_graph(graph, visited, neighbor)
+
+def count_outgoing_edges(graph, vertex):
+    n = len(graph)
+    count = 0
+    for i in range(n):
+        if graph[vertex][i] == 1:
+            count += 1
+    return count
+
+def is_complete_graph(graph):
+    n = len(graph)
+    for i in range(n):
+        for j in range(n):
+            if i != j and graph[i][j] != 1:
+                return False
+    return True
+
+def has_complete_subgraph(graph, k):
+    n = len(graph)
+    if k > n:
+        return False
+
+    selected_vertices = list(range(k))
+    current_combination = [0] * k
+
+    while current_combination[0] <= n - k:
+        # Проверяем, что текущая комбинация вершин является полным подграфом
+        is_complete = all(graph[selected_vertices[i]][selected_vertices[j]] == 1 for i in range(k) for j in range(i + 1, k))
+
+        if is_complete:
+            return True
+
+        # Генерируем следующую комбинацию
+        t = k - 1
+        while t >= 0 and current_combination[t] == n - k + t:
+            t -= 1
+
+        if t < 0:
+            break  # Все возможные комбинации были проверены
+
+        current_combination[t] += 1
+
+        for i in range(t + 1, k):
+            current_combination[i] = current_combination[i - 1] + 1
+
+        selected_vertices = [current_combination[i] for i in range(k)]
+
+    return False  # Подграф с K вершинами не найден
+
+def dfs_for_minimum_spanning_tree(graph, visited, vertex):
+    visited[vertex] = True
+    print(vertex, end=" ")
+
+    for neighbor in range(len(graph)):
+        if graph[vertex][neighbor] == 1 and not visited[neighbor]:
+            # Ребро (vertex, neighbor) входит в остовное дерево
+            dfs_for_minimum_spanning_tree(graph, visited, neighbor)
+
+def find_minimum_spanning_tree(graph):
+    n = len(graph)
+    visited = [False] * n
+
+    for i in range(n):
+        if not visited[i]:
+            print(f"Остовное дерево, начиная с вершины {i}:\n", end="")
+            dfs_for_minimum_spanning_tree(graph, visited, i)
+            print()
+
+def count_connected_components(graph):
+    n = len(graph)
+    visited = [False] * n
+    components = 0
+
+    for i in range(n):
+        if not visited[i]:
+            is_connected_graph(graph, visited, i)
+            components += 1
+
+    return components
+
+if __name__ == "__main__":
+    n = int(input("Введите размерность матрицы n (2 <= n <= 10): "))
+
+    if n < 2 or n > 10:
+        print("Неверный размер массива. Укажите n от 2 до 10.")
+    else:
+        matrix = [[0] * n for _ in range(n)]
+
+        print("Введите элементы матрицы:")
+        for i in range(n):
+            matrix[i] = list(map(int, input().split()))
+
+        print("Выберите действие:")
+        print("1 - Это направленный или ненаправленный граф?")
+        print("2 - Это связный или несвязный граф?")
+        print("3 - Это весовый граф или нет?")
+        print("4 - Это полный граф или нет?")
+        print("5 - Этот граф дерево, лес или ни то ни другое?")
+        print("6 - Этот граф уникурсальный или нет?")
+        print("7 - Существует ли полный подграф с К вершинами?")
+        print("8 - Определить остовное дерево в графе.")
+        print("9 - Количество компонентов связности графа.")
+        print("10 - Визуализация графа.")
+        print("0 - Завершить программу.")
+
+        while True:
+            button = int(input("Введите значение: "))
+
+            if button == 1:
+                is_directed = any(matrix[i][j] != matrix[j][i] for i in range(n) for j in range(n))
+                print("Граф является направленным." if is_directed else "Граф является ненаправленным.")
+            elif button == 2:
+                visited = [False] * n
+                is_connected_graph(matrix, visited, 0)
+                is_connected = all(visit for visit in visited)
+                print("Граф связный." if is_connected else "Граф несвязный.")
+            elif button == 3:
+                is_weighted = any(matrix[i][j] != 0 for i in range(n) for j in range(n))
+                print("Граф является взвешенным." if is_weighted else "Граф не является взвешенным.")
+            elif button == 4:
+                print("Граф является полным." if is_complete_graph(matrix) else "Граф не является полным.")
+            elif button == 5:
+                visited = [False] * n
+                is_connected_graph(matrix, visited, 0)
+                is_tree = all(matrix[i][j] == 1 and visited[i] and visited[j] for i in range(n) for j in range(n))
+                is_forest = all(visit for visit in visited)
+                print("Граф является деревом." if is_tree else ("Граф является лесом." if is_forest else "Граф не является ни деревом, ни лесом."))
+            elif button == 6:
+                odd_count = sum(count_outgoing_edges(matrix, i) % 2 != 0 for i in range(n))
+                even_count = n - odd_count
+                is_eulerian = even_count == n or odd_count >= 2
+                print("Граф уникурсальный." if is_eulerian else "Граф не уникурсальный.")
+            elif button == 7:
+                k = int(input("Введите количество вершин K: "))
+                has_subgraph = has_complete_subgraph(matrix, k)
+                print(f"Существует полный подграф с {k} вершинами." if has_subgraph else f"Нет полного подграфа с {k} вершинами.")
+            elif button == 8:
+                find_minimum_spanning_tree(matrix)
+            elif button == 9:
+                components = count_connected_components(matrix)
+                print(f"Количество компонентов связности: {components}")
+            elif button == 10:
+                generate_dot_file(matrix, "graph.dot")
+                visualize_graph("graph.dot", "graph.png")
+            elif button == 0:
+                break
+            else:
+                print("Введите правильное значение.")
+
+            print("\nВыберите действие:")
+            print("1 - Это направленный или ненаправленный граф?")
+            print("2 - Это связный или несвязный граф?")
+            print("3 - Это весовый граф или нет?")
+            print("4 - Это полный граф или нет?")
+            print("5 - Этот граф дерево, лес или ни то ни другое?")
+            print("6 - Этот граф уникурсальный или нет?")
+            print("7 - Существует ли полный подграф с К вершинами?")
+            print("8 - Определить остовное дерево в графе.")
+            print("9 - Количество компонентов связности графа.")
+            print("10 - Визуализация графа.")
+            print("0 - Завершить программу.")
