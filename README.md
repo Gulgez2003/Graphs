@@ -54,7 +54,16 @@
 
 
 
+---
 
+###About the Author
+**Name:** Gulgaz Mammadova
+**University:** Baku State University (BSU)
+**Faculty:** Applied Mathematics and Cybernetics
+**Major:** Computer Science
+**Group:** TK-88
+
+---
 **Repository: Algorithms and Graphs**
 
 ---
